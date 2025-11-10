@@ -1,0 +1,12 @@
+{
+  "name": "ndch-apply",
+  "version": "1.0.0",
+  "description": "NDCH Qualification Agent powered by ChatKit",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "openai": "^4.67.0"
+  }
+}
