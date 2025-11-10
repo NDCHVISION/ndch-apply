@@ -31,9 +31,9 @@
         }
         .tagline {
             color: #888;
-            font-size: 1rem;
-            letter-spacing: 0.05em;
+            font-size: 0.875rem;
             text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
         main {
             flex: 1;
@@ -60,6 +60,8 @@
             }
         }
     </style>
+    <!-- Load ChatKit script -->
+    <script src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js" async></script>
 </head>
 <body>
     <header>
@@ -67,15 +69,19 @@
         <p class="tagline">Clarity Before Comfort. Legacy Engineered.</p>
     </header>
     <main>
-        <div id="chatkit-container"></div>
+        <openai-chatkit id="chatkit-container"></openai-chatkit>
     </main>
 
-    <script type="module">
-        import { initializeChatKit } from 'https://cdn.jsdelivr.net/npm/@openai/chatkit@latest/dist/index.js';
-
+    <script>
+        // Wait for ChatKit to load
         async function initChat() {
+            // Wait for the custom element to be defined
+            await window.customElements.whenDefined('openai-chatkit');
+            
+            const chatkit = document.getElementById('chatkit-container');
+            
             try {
-                // Get session token from our backend
+                // Fetch session token from our backend
                 const response = await fetch('/api/chatkit', {
                     method: 'POST',
                     headers: {
@@ -88,22 +94,41 @@
                 }
 
                 const data = await response.json();
-
-                // Initialize ChatKit
-                await initializeChatKit({
-                    container: document.getElementById('chatkit-container'),
-                    sessionToken: data.session_token,
-                    workflowId: 'wf_69117e1f8b2481909347f29e926bb66c0306ac21ff77412d'
+                
+                // Configure ChatKit with the session token
+                chatkit.setOptions({
+                    api: {
+                        async getClientSecret(currentSecret) {
+                            if (currentSecret) {
+                                // Refresh session if needed
+                                const res = await fetch('/api/chatkit', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' }
+                                });
+                                const data = await res.json();
+                                return data.client_secret;
+                            }
+                            return data.client_secret;
+                        }
+                    },
+                    theme: {
+                        colorScheme: 'dark'
+                    },
+                    composer: {
+                        placeholder: 'Begin your qualification...'
+                    }
                 });
             } catch (error) {
                 console.error('Failed to initialize chat:', error);
-                document.getElementById('chatkit-container').innerHTML = 
-                    '<div style="padding: 2rem; text-align: center; color: #888;">Unable to load chat. Please refresh the page.</div>';
             }
         }
 
-        // Initialize when page loads
-        initChat();
+        // Initialize when script loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChat);
+        } else {
+            initChat();
+        }
     </script>
 </body>
 </html>
