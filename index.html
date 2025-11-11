@@ -69,7 +69,7 @@
         <p class="tagline">Clarity Before Comfort. Legacy Engineered.</p>
     </header>
     <main>
-        <openai-chatkit id="chatkit-container"></openai-chatkit>
+        <div id="chatkit-container"></div>
     </main>
 
     <script>
@@ -78,7 +78,11 @@
             // Wait for the custom element to be defined
             await window.customElements.whenDefined('openai-chatkit');
             
-            const chatkit = document.getElementById('chatkit-container');
+const container = document.getElementById('chatkit-container');
+            
+            // Create the ChatKit custom element
+            const chatkit = document.createElement('openai-chatkit');
+            container.appendChild(chatkit);
             
             // Configure ChatKit
             chatkit.setOptions({
