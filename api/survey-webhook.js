@@ -60,7 +60,7 @@ async function sendCompletionEmail(data) {
       'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
     },
     body: JSON.stringify({
-      from: 'ChatKit Survey <notifications@ndchvision.com>',
+      from: 'ChatKit Survey <ops@ndchvision.com>',
       to: ['nkrumah@ndchvision.com'],
       subject: 'New ChatKit Survey Completion',
       html: `
