@@ -73,62 +73,38 @@
     </main>
 
     <script>
-        // Wait for ChatKit to load
-        async function initChat() {
+                // Wait for ChatKit script to load and initialize
+        (async function() {
             // Wait for the custom element to be defined
             await window.customElements.whenDefined('openai-chatkit');
             
             const chatkit = document.getElementById('chatkit-container');
             
-            try {
-                // Fetch session token from our backend
-                const response = await fetch('/api/chatkit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to get session token');
-                }
-
-                const data = await response.json();
-                
-                // Configure ChatKit with the session token
-                chatkit.setOptions({
-                    api: {
-                        async getClientSecret(currentSecret) {
-                            if (currentSecret) {
-                                // Refresh session if needed
-                                const res = await fetch('/api/chatkit', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' }
-                                });
-                                const data = await res.json();
-                                return data.client_secret;
-                            }
-                            return data.client_secret;
+            // Configure ChatKit
+            chatkit.setOptions({
+                api: {
+                    async getClientSecret(currentSecret) {
+                        // Fetch new session token from our backend
+                        const res = await fetch('/api/chatkit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        if (!res.ok) {
+                            throw new Error('Failed to get session token');
                         }
-                    },
-                    theme: {
-                        colorScheme: 'dark'
-                    },
-                    composer: {
-                        placeholder: 'Begin your qualification...'
+                        
+                        const data = await res.json();
+                        return data.client_secret;
                     }
-                });
-            } catch (error) {
-                console.error('Failed to initialize chat:', error);
-            }
-        }
-
-        // Initialize when script loads
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initChat);
-        } else {
-            initChat();
-        }
-    </script>
+                },
+                theme: {
+                    colorScheme: 'dark'
+                },
+                composer: {
+                    placeholder: 'Begin your qualification...'
+                }
+            });
+        })();    </script>
 </body>
 </html>
